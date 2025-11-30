@@ -23,7 +23,7 @@ from docx import Document
 from bs4 import BeautifulSoup
 
 
-st.title("Input to AI (ChatGPT API - gpt-4o-mini)")
+st.title("Input to AI (gpt-4o-mini)")
 
 
 # Helper: extract text from uploaded files
