@@ -1,7 +1,7 @@
 """
 Question 1: This implementation assumes that the user is running ollama with a llama 3.2:latest version. 
 
-I implemented the streamlit session state to try and explore additional features of the streamlit framework. 
+I implemented the streamlit session state to try and explore additional features of the streamlit framework.
 """
 import streamlit as st
 import ollama
@@ -72,23 +72,41 @@ if uploaded_file is not None:
 if st.button("Send"):
     if question.strip():
 
-        user_message_content = question
-        if file_text:
-            user_message_content += f"\n\nDocument Content:\n{file_text}"
+        # --- What we SHOW to the user ---
+        if uploaded_file is not None:
+            display_message = (
+                f"{question}\n\n"
+                f"[Document uploaded: {uploaded_file.name} ingested successfully]"
+            )
+        else:
+            display_message = question
 
-        # Save for display only
         st.session_state.history.append(
-            {"role": "user", "content": user_message_content}
+            {"role": "user", "content": display_message}
         )
 
-        # LLM call uses *only* the current question + uploaded file
+        if file_text:
+            prompt_for_model = f"""
+You are an assistant. Answer the user's question using the document text provided.
+
+Question:
+{question}
+
+Document text:
+{file_text}
+"""
+        else:
+            prompt_for_model = question
+
+        # LLM call (Ollama)
         response = ollama.chat(
             model="llama3.2:latest",
-            messages=[{"role": "user", "content": user_message_content}]
+            messages=[{"role": "user", "content": prompt_for_model}]
         )
 
         reply = response["message"]["content"]
 
+        # Display assistant response
         st.session_state.history.append(
             {"role": "assistant", "content": reply}
         )
